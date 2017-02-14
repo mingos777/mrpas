@@ -4,7 +4,7 @@ MRPAS, or [Mingos' Restrictive Precise Angle Shadowcasting](http://www.roguebasi
 
 To visualise this, let the following be a 2D grid of 20 by 20 points. The character `@` represents the field of view source, `#` characters represent obstacles. Cells with yellow background are in the source point's field of view:
 
-![fov](https://bitbucket.org/mingos/mrpas/src/img/fov.png)
+![fov](https://bytebucket.org/mingos/mrpas/raw/0c4ef44008589b0d4366b3f44072cfd3731b6410/img/fov.png)
 
 ## Real life uses
 
@@ -34,7 +34,7 @@ Considering the mathematics behind determining the FOV, the line of sight from A
 
 The algorithm's asymmetry can be seen on the following image, where the `.` character has been used to mark asymmetric points (if on yellow background, they can be seen from the source, but cannot see the source; if on black, the source is visible from them, but it cannot see them):
 
-![fov](https://bitbucket.org/mingos/mrpas/src/img/symmetry.png)
+![fov](https://bytebucket.org/mingos/mrpas/raw/0c4ef44008589b0d4366b3f44072cfd3731b6410/img/symmetry.png)
 
 On the above map, 1.6% of all points not containing an obstacle are asymmetric.
 
@@ -42,7 +42,7 @@ The percentage of asymmetric points is within the range of single digit numbers,
 
 For comparison, here's an "outdoor" map with 4.4% asymmetric points:
 
-![fov](https://bitbucket.org/mingos/mrpas/src/img/symmetry-outdoor.png)
+![fov](https://bytebucket.org/mingos/mrpas/raw/0c4ef44008589b0d4366b3f44072cfd3731b6410/img/symmetry-outdoor.png)
 
 ## Performance
 
