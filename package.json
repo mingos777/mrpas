@@ -1,6 +1,6 @@
 {
   "name": "mrpas",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A Field of View (FOV) computation algorithm.",
   "main": "src/index.js",
   "scripts": {},

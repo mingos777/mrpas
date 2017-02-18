@@ -1,445 +1,474 @@
-class Mrpas {
-	/**
-	 * Check whether point (x,y) is transparent (i.e. is not an obstacle)
-	 * @callback isTransparent
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {boolean}
-	 */
-	/**
-	 * Check whether point (x,y) has previously been marked as visible
-	 * @callback isVisible
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {boolean}
-	 */
-	/**
-	 * Mark point (x,y) as visible
-	 * @callback setVisible
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	/**
-	 * A data object passed into the octant methods
-	 * @typedef {object} fovData
-	 * @property {number} minX
-	 * @property {number} minY
-	 * @property {number} maxX
-	 * @property {number} maxY
-	 * @property {number} originX
-	 * @property {number} originY
-	 * @property {number} radius
-	 * @property {isVisible} isVisible
-	 * @property {setVisible} setVisible
-	 */
+/**
+ * Check whether point (x,y) is transparent (i.e. is not an obstacle)
+ * @callback isTransparent
+ * @param {number} x
+ * @param {number} y
+ * @returns {boolean}
+ */
+/**
+ * Check whether point (x,y) has previously been marked as visible
+ * @callback isVisible
+ * @param {number} x
+ * @param {number} y
+ * @returns {boolean}
+ */
+/**
+ * Mark point (x,y) as visible
+ * @callback setVisible
+ * @param {number} x
+ * @param {number} y
+ */
+/**
+ * A data object passed into the octant methods
+ * @typedef {object} fovData
+ * @property {number} minX
+ * @property {number} minY
+ * @property {number} maxX
+ * @property {number} maxY
+ * @property {number} originX
+ * @property {number} originY
+ * @property {number} radius
+ * @property {isVisible} isVisible
+ * @property {setVisible} setVisible
+ */
 
+/**
+ * @param {number} mapWidth
+ * @param {number} mapHeight
+ * @param {isTransparent} isTransparent
+ * @constructor
+ */
+var Mrpas = function(mapWidth, mapHeight, isTransparent) {
 	/**
-	 * @param {number} mapWidth
-	 * @param {number} mapHeight
-	 * @param {isTransparent} isTransparent
-	 */
-	constructor(mapWidth, mapHeight, isTransparent) {
-		this.mapWidth = mapWidth;
-		this.mapHeight = mapHeight;
-		this.isTransparent = isTransparent;
-	}
-
-	/**
-	 * Compute the FOV in an octant adjacent to the Y axis
-	 * @param {number} deltaX
-	 * @param {number} deltaY
-	 * @param {fovData} data
+	 * @type {number}
 	 * @private
 	 */
-	_computeOctantY(deltaX, deltaY, data) {
-		/**
-		 * @type {Array.<number>}
-		 */
-		const startAngle = [];
+	this._mapWidth = mapWidth;
 
-		/**
-		 * @type {Array.<number>}
-		 */
-		const endAngle = [];
+	/**
+	 * @type {number}
+	 * @private
+	 */
+	this._mapHeight = mapHeight;
 
-		/**
-		 * @type {number}
-		 */
-		let iteration = 1;
+	/**
+	 * @type {isTransparent}
+	 * @private
+	 */
+	this._isTransparent = isTransparent;
+};
 
-		/**
-		 * @type {boolean}
-		 */
-		let done = false;
+/**
+ * Compute the FOV in an octant adjacent to the Y axis
+ * @param {number} deltaX
+ * @param {number} deltaY
+ * @param {fovData} data
+ * @private
+ */
+Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
+	/**
+	 * @type {Array.<number>}
+	 */
+	var startAngle = [];
 
-		/**
-		 * @type {number}
-		 */
-		let totalObstacles = 0;
+	/**
+	 * @type {Array.<number>}
+	 */
+	var endAngle = [];
 
-		/**
-		 * @type {number}
-		 */
-		let obstaclesInLastLine = 0;
+	/**
+	 * @type {number}
+	 */
+	var iteration = 1;
 
-		/**
-		 * @type {number}
-		 */
-		let minAngle = 0;
+	/**
+	 * @type {boolean}
+	 */
+	var done = false;
 
-		/**
-		 * @type {number}
-		 */
-		let x;
+	/**
+	 * @type {number}
+	 */
+	var totalObstacles = 0;
 
-		/**
-		 * @type {number}
-		 */
-		let y;
+	/**
+	 * @type {number}
+	 */
+	var obstaclesInLastLine = 0;
 
-		/**
-		 * @type {number}
-		 */
-		let slopesPerCell;
+	/**
+	 * @type {number}
+	 */
+	var minAngle = 0;
 
-		/**
-		 * @type {number}
-		 */
-		let halfSlopes;
+	/**
+	 * @type {number}
+	 */
+	var x;
 
-		/**
-		 * @type {number}
-		 */
-		let processedCell;
+	/**
+	 * @type {number}
+	 */
+	var y;
 
-		/**
-		 * @type {number}
-		 */
-		let min;
+	/**
+	 * @type {number}
+	 */
+	var slopesPerCell;
 
-		/**
-		 * @type {number}
-		 */
-		let max;
+	/**
+	 * @type {number}
+	 */
+	var halfSlopes;
 
-		/**
-		 * @type {boolean}
-		 */
-		let visible;
+	/**
+	 * @type {number}
+	 */
+	var processedCell;
 
-		/**
-		 * @type {boolean}
-		 */
-		let extended;
+	/**
+	 * @type {number}
+	 */
+	var min;
 
-		/**
-		 * @type {number}
-		 */
-		let centreSlope;
+	/**
+	 * @type {number}
+	 */
+	var max;
 
-		/**
-		 * @type {number}
-		 */
-		let startSlope;
+	/**
+	 * @type {boolean}
+	 */
+	var visible;
 
-		/**
-		 * @type {number}
-		 */
-		let endSlope;
+	/**
+	 * @type {boolean}
+	 */
+	var extended;
 
-		y = data.originY + deltaY;
+	/**
+	 * @type {number}
+	 */
+	var centreSlope;
+
+	/**
+	 * @type {number}
+	 */
+	var startSlope;
+
+	/**
+	 * @type {number}
+	 */
+	var endSlope;
+
+	y = data.originY + deltaY;
+	if (y < data.minY || y > data.maxY) {
+		done = true;
+	}
+	while (!done) {
+		slopesPerCell = 1.0 / iteration;
+		halfSlopes = slopesPerCell * 0.5;
+		processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
+		min = Math.max(data.minX, data.originX - iteration);
+		max = Math.min(data.maxX, data.originX + iteration);
+		done = true;
+		for (x = data.originX + (processedCell * deltaX); x >= min && x <= max; x += deltaX) {
+			visible = true;
+			extended = false;
+			centreSlope = processedCell * slopesPerCell;
+			startSlope = centreSlope - halfSlopes;
+			endSlope = centreSlope + halfSlopes;
+			if (obstaclesInLastLine > 0 && !data.isVisible(x, y)) {
+				if (
+					!(
+						data.isVisible(x, y - deltaY) &&
+						this._isTransparent(x, y - deltaY)
+					) &&
+					!(
+						data.isVisible(x - deltaX, y - deltaY) &&
+						this._isTransparent(x - deltaX, y - deltaY)
+					)
+				) {
+					visible = false;
+				} else {
+					for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
+						if (startAngle[idx] > endSlope || endAngle[idx] < startSlope) {
+							++idx;
+						} else {
+							if (this._isTransparent(x, y)) {
+								if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
+									visible = false;
+								}
+							} else {
+								if (startSlope >= startAngle[idx] && endSlope <= endAngle[idx]) {
+									visible = false;
+								} else {
+									startAngle[idx] = Math.min(startAngle[idx], startSlope);
+									endAngle[idx] = Math.max(endAngle[idx], endSlope);
+									extended = true;
+								}
+							}
+							++idx;
+						}
+					}
+				}
+			}
+			if (visible) {
+				done = false;
+				data.setVisible(x, y);
+				if (!this._isTransparent(x, y)) {
+					if (minAngle >= startSlope) {
+						minAngle = endSlope;
+						if (processedCell == iteration) {
+							done = true;
+						}
+					} else if (!extended) {
+						startAngle[totalObstacles] = startSlope;
+						endAngle[totalObstacles++] = endSlope;
+					}
+				}
+			}
+			processedCell++;
+		}
+		if (iteration == data.radius) {
+			done = true;
+		}
+		iteration++;
+		obstaclesInLastLine = totalObstacles;
+		y += deltaY;
 		if (y < data.minY || y > data.maxY) {
 			done = true;
 		}
-		while (!done) {
-			slopesPerCell = 1.0 / iteration;
-			halfSlopes = slopesPerCell * 0.5;
-			processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
-			min = Math.max(data.minX, data.originX - iteration);
-			max = Math.min(data.maxX, data.originX + iteration);
-			done = true;
-			for (x = data.originX + (processedCell * deltaX); x >= min && x <= max; x += deltaX) {
-				visible = true;
-				extended = false;
-				centreSlope = processedCell * slopesPerCell;
-				startSlope = centreSlope - halfSlopes;
-				endSlope = centreSlope + halfSlopes;
-				if (obstaclesInLastLine > 0) {
-					if (
-						!(
-							data.isVisible(x, y - deltaY) &&
-							this.isTransparent(x, y - deltaY)
-						) && !(
-							data.isVisible(x - deltaX, y - deltaY) &&
-							this.isTransparent(x - deltaX, y - deltaY)
-						)
-					) {
-						visible = false;
-					} else {
-						for (let idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
-							if (startSlope <= endAngle[idx] && endSlope >= startAngle[idx]) {
-								if (this.isTransparent(x, y)) {
-									if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
-										visible = false;
-									}
-								} else {
-									if (startSlope >= startAngle[idx] && endSlope <= endAngle[idx]) {
-										visible = false;
-									} else {
-										startAngle[idx] = Math.min(startAngle[idx], startSlope);
-										endAngle[idx] = Math.max(endAngle[idx], endSlope);
-										extended = true;
-									}
-								}
-							}
-						}
-					}
-				}
-				if (visible) {
-					done = false;
-					data.setVisible(x, y);
-					if (!this.isTransparent(x, y)) {
-						if (minAngle >= startSlope) {
-							minAngle = endSlope;
-							if (processedCell == iteration) {
-								done = true;
-							}
-						} else if (!extended) {
-							startAngle[totalObstacles] = startSlope;
-							endAngle[totalObstacles++] = endSlope;
-						}
-					}
-				}
-				processedCell++;
-			}
-			if (iteration == data.radius) {
-				done = true;
-			}
-			iteration++;
-			obstaclesInLastLine = totalObstacles;
-			y += deltaY;
-			if (y < data.minY || y > data.maxY) {
-				done = true;
-			}
-		}
 	}
+};
+
+/**
+ * Compute the FOV in an octant adjacent to the X axis
+ * @param {number} deltaX
+ * @param {number} deltaY
+ * @param {fovData} data
+ * @private
+ */
+Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
+	/**
+	 * @type {Array.<number>}
+	 */
+	var startAngle = [];
 
 	/**
-	 * Compute the FOV in an octant adjacent to the X axis
-	 * @param {number} deltaX
-	 * @param {number} deltaY
-	 * @param {fovData} data
-	 * @private
+	 * @type {Array.<number>}
 	 */
-	_computeOctantX(deltaX, deltaY, data) {
-		/**
-		 * @type {Array.<number>}
-		 */
-		const startAngle = [];
+	var endAngle = [];
 
-		/**
-		 * @type {Array.<number>}
-		 */
-		const endAngle = [];
+	/**
+	 * @type {number}
+	 */
+	var iteration = 1;
 
-		/**
-		 * @type {number}
-		 */
-		let iteration = 1;
+	/**
+	 * @type {boolean}
+	 */
+	var done = false;
 
-		/**
-		 * @type {boolean}
-		 */
-		let done = false;
+	/**
+	 * @type {number}
+	 */
+	var totalObstacles = 0;
 
-		/**
-		 * @type {number}
-		 */
-		let totalObstacles = 0;
+	/**
+	 * @type {number}
+	 */
+	var obstaclesInLastLine = 0;
 
-		/**
-		 * @type {number}
-		 */
-		let obstaclesInLastLine = 0;
+	/**
+	 * @type {number}
+	 */
+	var minAngle = 0;
 
-		/**
-		 * @type {number}
-		 */
-		let minAngle = 0;
+	/**
+	 * @type {number}
+	 */
+	var x;
 
-		/**
-		 * @type {number}
-		 */
-		let x;
+	/**
+	 * @type {number}
+	 */
+	var y;
 
-		/**
-		 * @type {number}
-		 */
-		let y;
+	/**
+	 * @type {number}
+	 */
+	var slopesPerCell;
 
-		/**
-		 * @type {number}
-		 */
-		let slopesPerCell;
+	/**
+	 * @type {number}
+	 */
+	var halfSlopes;
 
-		/**
-		 * @type {number}
-		 */
-		let halfSlopes;
+	/**
+	 * @type {number}
+	 */
+	var processedCell;
 
-		/**
-		 * @type {number}
-		 */
-		let processedCell;
+	/**
+	 * @type {number}
+	 */
+	var min;
 
-		/**
-		 * @type {number}
-		 */
-		let min;
+	/**
+	 * @type {number}
+	 */
+	var max;
 
-		/**
-		 * @type {number}
-		 */
-		let max;
+	/**
+	 * @type {boolean}
+	 */
+	var visible;
 
-		/**
-		 * @type {boolean}
-		 */
-		let visible;
+	/**
+	 * @type {boolean}
+	 */
+	var extended;
 
-		/**
-		 * @type {boolean}
-		 */
-		let extended;
+	/**
+	 * @type {number}
+	 */
+	var centreSlope;
 
-		/**
-		 * @type {number}
-		 */
-		let centreSlope;
+	/**
+	 * @type {number}
+	 */
+	var startSlope;
 
-		/**
-		 * @type {number}
-		 */
-		let startSlope;
+	/**
+	 * @type {number}
+	 */
+	var endSlope;
 
-		/**
-		 * @type {number}
-		 */
-		let endSlope;
-
-		x = data.originX + deltaX;
+	x = data.originX + deltaX;
+	if (x < data.minX || x > data.maxX) {
+		done = true;
+	}
+	while (!done) {
+		slopesPerCell = 1.0 / iteration;
+		halfSlopes = slopesPerCell * 0.5;
+		processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
+		min = Math.max(data.minY, data.originY - iteration);
+		max = Math.min(data.maxY, data.originY + iteration);
+		done = true;
+		for (y = data.originY + (processedCell * deltaY); y >= min && y <= max; y+=deltaY) {
+			visible = true;
+			extended = false;
+			centreSlope = processedCell * slopesPerCell;
+			startSlope = centreSlope - halfSlopes;
+			endSlope = centreSlope + halfSlopes;
+			if (obstaclesInLastLine > 0 && !data.isVisible(x, y)) {
+				if (
+					!(
+						data.isVisible(x - deltaX, y) &&
+						this._isTransparent(x - deltaX, y)
+					) &&
+					!(
+						data.isVisible(x - deltaX, y - deltaY) &&
+						this._isTransparent(x - deltaX, y - deltaY)
+					)
+				) {
+					visible = false;
+				} else {
+					for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
+						if (startAngle[idx] > endSlope || endAngle[idx] < startSlope) {
+							++idx;
+						} else {
+							if (this._isTransparent(x, y)) {
+								if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
+									visible = false;
+								}
+							} else {
+								if (startSlope >= startAngle[idx] && endSlope <= endAngle[idx]) {
+									visible = false;
+								} else {
+									startAngle[idx] = Math.min(startAngle[idx], startSlope);
+									endAngle[idx] = Math.max(endAngle[idx], endSlope);
+									extended = true;
+								}
+							}
+							++idx;
+						}
+					}
+				}
+			}
+			if (visible) {
+				done = false;
+				data.setVisible(x, y);
+				if (!this._isTransparent(x, y)) {
+					if (minAngle >= startSlope) {
+						minAngle = endSlope;
+						if (processedCell == iteration) {
+							done = true;
+						}
+					} else if (!extended) {
+						startAngle[totalObstacles] = startSlope;
+						endAngle[totalObstacles++] = endSlope;
+					}
+				}
+			}
+			processedCell++;
+		}
+		if (iteration == data.radius) {
+			done = true;
+		}
+		iteration++;
+		obstaclesInLastLine = totalObstacles;
+		x += deltaX;
 		if (x < data.minX || x > data.maxX) {
 			done = true;
 		}
-		while (!done) {
-			slopesPerCell = 1.0 / iteration;
-			halfSlopes = slopesPerCell * 0.5;
-			processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
-			min = Math.max(data.minY, data.originY - iteration);
-			max = Math.min(data.maxY, data.originY + iteration);
-			done = true;
-			for (y = data.originY + (processedCell * deltaY); y >= min && y <= max; y += deltaY) {
-				visible = true;
-				extended = false;
-				centreSlope = processedCell * slopesPerCell;
-				startSlope = centreSlope - halfSlopes;
-				endSlope = centreSlope + halfSlopes;
-				if (obstaclesInLastLine > 0) {
-					if (
-						!(
-							data.isVisible(x - deltaX, y) &&
-							this.isTransparent(x - deltaX, y)
-						) && !(
-							data.isVisible(x - deltaX, y - deltaY) &&
-							this.isTransparent(x - deltaX, y - deltaY)
-						)
-					) {
-						visible = false;
-					} else {
-						for (let idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
-							if (startSlope <= endAngle[idx] && endSlope >= startAngle[idx]) {
-								if (this.isTransparent(x, y)) {
-									if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
-										visible = false;
-									}
-								} else {
-									if (startSlope >= startAngle[idx] && endSlope <= endAngle[idx]) {
-										visible = false;
-									} else {
-										startAngle[idx] = Math.min(startAngle[idx], startSlope);
-										endAngle[idx] = Math.max(endAngle[idx], endSlope);
-										extended = true;
-									}
-								}
-							}
-						}
-					}
-				}
-				if (visible) {
-					done = false;
-					data.setVisible(x, y);
-					if (!this.isTransparent(x, y)) {
-						if (minAngle >= startSlope) {
-							minAngle = endSlope;
-							if (processedCell == iteration) {
-								done = true;
-							}
-						} else if (!extended) {
-							startAngle[totalObstacles] = startSlope;
-							endAngle[totalObstacles++] = endSlope;
-						}
-					}
-				}
-				processedCell++;
-			}
-			if (iteration == data.radius) {
-				done = true;
-			}
-			iteration++;
-			obstaclesInLastLine = totalObstacles;
-			x += deltaX;
-			if (x < data.minX || x > data.maxX) {
-				done = true;
-			}
-		}
 	}
+};
+
+/**
+ * Change the dimensions of the map
+ * @param {number} mapWidth
+ * @param {number} mapHeight
+ */
+Mrpas.prototype.setMapDimensions = function(mapWidth, mapHeight) {
+	this._mapWidth = mapWidth;
+	this._mapHeight = mapHeight;
+};
+
+/**
+ * @param {number} originX
+ * @param {number} originY
+ * @param {number} radius
+ * @param {isVisible} isVisible
+ * @param {setVisible} setVisible
+ */
+Mrpas.prototype.compute = function(originX, originY, radius, isVisible, setVisible) {
+	setVisible(originX, originY);
 
 	/**
-	 * @param {number} originX
-	 * @param {number} originY
-	 * @param {number} radius
-	 * @param {isVisible} isVisible
-	 * @param {setVisible} setVisible
+	 * @type {fovData}
 	 */
-	compute(originX, originY, radius, isVisible, setVisible) {
-		setVisible(originX, originY);
+	var data = {
+		minX: Math.max(0, originX - radius),
+		minY: Math.max(0, originY - radius),
+		maxX: Math.min(this._mapWidth - 1, originX + radius),
+		maxY: Math.min(this._mapHeight - 1, originY + radius),
+		originX: originX,
+		originY: originY,
+		radius: radius,
+		isVisible: isVisible,
+		setVisible: setVisible
+	};
 
-		/**
-		 * @type {fovData}
-		 */
-		const data = {
-			minX: Math.max(0, originX - radius),
-			minY: Math.max(0, originY - radius),
-			maxX: Math.min(this.mapWidth - 1, originX + radius),
-			maxY: Math.min(this.mapHeight - 1, originY + radius),
-			originX: originX,
-			originY: originY,
-			radius: radius,
-			isVisible: isVisible,
-			setVisible: setVisible
-		};
+	this._computeOctantY(1, 1, data);
+	this._computeOctantX(1, 1, data);
+	this._computeOctantY(1, -1, data);
+	this._computeOctantX(1, -1, data);
+	this._computeOctantY(-1, 1, data);
+	this._computeOctantX(-1, 1, data);
+	this._computeOctantY(-1, -1, data);
+	this._computeOctantX(-1, -1, data);
+};
 
-		this._computeOctantY(1, 1, data);
-		this._computeOctantX(1, 1, data);
-		this._computeOctantY(1, -1, data);
-		this._computeOctantX(1, -1, data);
-		this._computeOctantY(-1, 1, data);
-		this._computeOctantX(-1, 1, data);
-		this._computeOctantY(-1, -1, data);
-		this._computeOctantX(-1, -1, data);
-	}
-}
-
-if (typeof module !== "undefined" && module.exports) {
-	module.exports.Mrpas = Mrpas;
-}
+module.exports = Mrpas;
