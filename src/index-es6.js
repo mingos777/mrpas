@@ -183,7 +183,8 @@ class Mrpas {
 						!(
 							data.isVisible(x, y - deltaY) &&
 							this._isTransparent(x, y - deltaY)
-						) && !(
+						) &&
+						!(
 							data.isVisible(x - deltaX, y - deltaY) &&
 							this._isTransparent(x - deltaX, y - deltaY)
 						)
@@ -363,7 +364,8 @@ class Mrpas {
 						!(
 							data.isVisible(x - deltaX, y) &&
 							this._isTransparent(x - deltaX, y)
-						) && !(
+						) &&
+						!(
 							data.isVisible(x - deltaX, y - deltaY) &&
 							this._isTransparent(x - deltaX, y - deltaY)
 						)

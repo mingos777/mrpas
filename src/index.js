@@ -178,7 +178,7 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 			centreSlope = processedCell * slopesPerCell;
 			startSlope = centreSlope - halfSlopes;
 			endSlope = centreSlope + halfSlopes;
-			if (obstaclesInLastLine > 0 && !data.isVisible(x, y)) {
+			if (obstaclesInLastLine > 0) {
 				if (
 					!(
 						data.isVisible(x, y - deltaY) &&
@@ -192,9 +192,7 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 					visible = false;
 				} else {
 					for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
-						if (startAngle[idx] > endSlope || endAngle[idx] < startSlope) {
-							++idx;
-						} else {
+						if (startSlope <= endAngle[idx] && endSlope >= startAngle[idx]) {
 							if (this._isTransparent(x, y)) {
 								if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
 									visible = false;
@@ -362,7 +360,7 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 			centreSlope = processedCell * slopesPerCell;
 			startSlope = centreSlope - halfSlopes;
 			endSlope = centreSlope + halfSlopes;
-			if (obstaclesInLastLine > 0 && !data.isVisible(x, y)) {
+			if (obstaclesInLastLine > 0) {
 				if (
 					!(
 						data.isVisible(x - deltaX, y) &&
@@ -376,9 +374,7 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 					visible = false;
 				} else {
 					for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
-						if (startAngle[idx] > endSlope || endAngle[idx] < startSlope) {
-							++idx;
-						} else {
+						if (startSlope <= endAngle[idx] && endSlope >= startAngle[idx]) {
 							if (this._isTransparent(x, y)) {
 								if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
 									visible = false;

@@ -1,12 +1,12 @@
 {
   "name": "mrpas",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A Field of View (FOV) computation algorithm.",
   "main": "src/index.js",
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/mingos/mrpas.git"
+    "url": "https://bitbucket.org/mingos/mrpas.git"
   },
   "keywords": [
     "fov",
@@ -14,5 +14,5 @@
   ],
   "author": "Dominik Marczuk <mingos.nospam@gmail.com> (http://dominikmarczuk.pl)",
   "license": "BSD-2-Clause",
-  "homepage": "https://bitbucket.org/mingos/mrpas#readme"
+  "homepage": "https://bitbucket.org/mingos/mrpas"
 }
