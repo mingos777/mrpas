@@ -8,6 +8,8 @@
 * refactored code for brevity and readability
 ### New features
 * added TypeScript typings
+### Removed features
+* removed ES6 version
 ### API break
 * exported module is now named. Call `require("mrpas").Mrpas` to import.
 

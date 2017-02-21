@@ -88,15 +88,15 @@ On the above map, 1.6% of all points not containing an obstacle are asymmetric.
 
 The percentage of asymmetric points is within the range of single digit numbers, depending on the map layout. An "outdoor" map with scattered single point obstacles will always contain the most symmetry artifacts.
 
-For comparison, here's an "outdoor" map with 4.4% asymmetric points:
+For comparison, here's an "outdoor" map with 3.9% asymmetric points:
 
 ![fov](https://bytebucket.org/mingos/mrpas/raw/0c4ef44008589b0d4366b3f44072cfd3731b6410/img/symmetry-outdoor.png)
 
 ### Performance
 
-MRPAS was written with performace in mind. It processes as few points as possible, discarding the ones obviously out of FOV. Since raw numbers, such as FOV computations per second, are meaningless without context, suffice it to say that MRPAS tends to outperform all popular FOV algorithms by a fair margin.
+MRPAS was written with performace in mind. It processes as few points as possible, discarding the ones obviously out of FOV. Since raw numbers, such as FOV computations per second, are meaningless without context, suffice it to say that MRPAS tends to match or outperform all popular FOV algorithms.
 
-It is worth noting that the ES6 version of MRPAS is 2-3 times slower, depending on the map it is being used on. The default implementation is therefore ES5, but ES6 is included just for fun.
+It is worth noting that MRPAS rewritten to ES6 turned out to be 2-3 times slower, depending on the map it was used on. The implementation of the algorithm is therefore written using ES5.
 
 ## Images
 
