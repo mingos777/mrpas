@@ -167,8 +167,8 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 	}
 	while (!done) {
 		slopesPerCell = 1.0 / iteration;
-		halfSlopes = slopesPerCell * 0.5;
-		processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
+		halfSlopes = slopesPerCell / 2;
+		processedCell = Math.floor(minAngle / slopesPerCell + halfSlopes / slopesPerCell);
 		min = Math.max(data.minX, data.originX - iteration);
 		max = Math.min(data.maxX, data.originX + iteration);
 		done = true;
@@ -348,12 +348,12 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 	}
 	while (!done) {
 		slopesPerCell = 1.0 / iteration;
-		halfSlopes = slopesPerCell * 0.5;
-		processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
+		halfSlopes = slopesPerCell / 2;
+		processedCell = Math.floor(minAngle / slopesPerCell + halfSlopes / slopesPerCell);
 		min = Math.max(data.minY, data.originY - iteration);
 		max = Math.min(data.maxY, data.originY + iteration);
 		done = true;
-		for (y = data.originY + (processedCell * deltaY); y >= min && y <= max; y+=deltaY) {
+		for (y = data.originY + (processedCell * deltaY); y >= min && y <= max; y += deltaY) {
 			visible = true;
 			extended = false;
 			centreSlope = processedCell * slopesPerCell;

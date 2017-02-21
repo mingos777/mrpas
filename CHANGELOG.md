@@ -3,6 +3,7 @@
 ## Next release
 ### Bugfixes
 * fixed iterator increment again
+* fixed floating point logic in determining initial processed cell per octant row/column
 ### Added features
 * added TypeScript typings
 ### API break
