@@ -4,6 +4,7 @@
   "description": "A Field of View (FOV) computation algorithm.",
   "main": "src/index.js",
   "scripts": {},
+  "typings": "src/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://bitbucket.org/mingos/mrpas.git"

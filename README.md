@@ -17,7 +17,7 @@ Or grab the code from the [repository](https://bitbucket.org/mingos/mrpas) and i
 Instantiate a `Mrpas` object by passing it the map dimensions and a callback for determining map cell transparency:
 
 ```
-const Mrpas = require("mrpas");
+const Mrpas = require("mrpas").Mrpas;
 
 const fov = new Mrpas(20, 20, (x, y) => {
     return map[x][y].transparent;

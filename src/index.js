@@ -206,7 +206,6 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 									extended = true;
 								}
 							}
-							++idx;
 						}
 					}
 				}
@@ -388,7 +387,6 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 									extended = true;
 								}
 							}
-							++idx;
 						}
 					}
 				}
@@ -467,4 +465,4 @@ Mrpas.prototype.compute = function(originX, originY, radius, isVisible, setVisib
 	this._computeOctantX(-1, -1, data);
 };
 
-module.exports = Mrpas;
+module.exports.Mrpas = Mrpas;
