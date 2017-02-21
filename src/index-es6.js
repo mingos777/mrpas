@@ -166,9 +166,9 @@ class Mrpas {
 			done = true;
 		}
 		while (!done) {
-			slopesPerCell = 1.0 / iteration;
-			halfSlopes = slopesPerCell * 0.5;
-			processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
+			slopesPerCell = 1 / iteration;
+			halfSlopes = slopesPerCell / 2;
+			processedCell = Math.floor(minAngle / slopesPerCell + halfSlopes / slopesPerCell);
 			min = Math.max(data.minX, data.originX - iteration);
 			max = Math.min(data.maxX, data.originX + iteration);
 			done = true;
@@ -347,9 +347,9 @@ class Mrpas {
 			done = true;
 		}
 		while (!done) {
-			slopesPerCell = 1.0 / iteration;
-			halfSlopes = slopesPerCell * 0.5;
-			processedCell = parseInt((minAngle + halfSlopes) / slopesPerCell);
+			slopesPerCell = 1 / iteration;
+			halfSlopes = slopesPerCell / 2;
+			processedCell = Math.floor(minAngle / slopesPerCell + halfSlopes / slopesPerCell);
 			min = Math.max(data.minY, data.originY - iteration);
 			max = Math.min(data.maxY, data.originY + iteration);
 			done = true;
