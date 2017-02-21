@@ -4,7 +4,9 @@
 ### Bugfixes
 * fixed iterator increment again
 * fixed floating point logic in determining initial processed cell per octant row/column
-### Added features
+### Modified features
+* refactored code for brevity and readability
+### New features
 * added TypeScript typings
 ### API break
 * exported module is now named. Call `require("mrpas").Mrpas` to import.

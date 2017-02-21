@@ -69,22 +69,17 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 	/**
 	 * @type {Array.<number>}
 	 */
-	var startAngle = [];
+	var startSlopes = [];
 
 	/**
 	 * @type {Array.<number>}
 	 */
-	var endAngle = [];
+	var endSlopes = [];
 
 	/**
 	 * @type {number}
 	 */
 	var iteration = 1;
-
-	/**
-	 * @type {boolean}
-	 */
-	var done = false;
 
 	/**
 	 * @type {number}
@@ -99,7 +94,7 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 	/**
 	 * @type {number}
 	 */
-	var minAngle = 0;
+	var minSlope = 0;
 
 	/**
 	 * @type {number}
@@ -114,27 +109,12 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 	/**
 	 * @type {number}
 	 */
-	var slopesPerCell;
-
-	/**
-	 * @type {number}
-	 */
-	var halfSlopes;
+	var halfSlope;
 
 	/**
 	 * @type {number}
 	 */
 	var processedCell;
-
-	/**
-	 * @type {number}
-	 */
-	var min;
-
-	/**
-	 * @type {number}
-	 */
-	var max;
 
 	/**
 	 * @type {boolean}
@@ -161,23 +141,29 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 	 */
 	var endSlope;
 
-	y = data.originY + deltaY;
-	if (y < data.minY || y > data.maxY) {
-		done = true;
-	}
-	while (!done) {
-		slopesPerCell = 1 / iteration;
-		halfSlopes = slopesPerCell / 2;
-		processedCell = Math.floor(minAngle / slopesPerCell + halfSlopes / slopesPerCell);
-		min = Math.max(data.minX, data.originX - iteration);
-		max = Math.min(data.maxX, data.originX + iteration);
-		done = true;
-		for (x = data.originX + (processedCell * deltaX); x >= min && x <= max; x += deltaX) {
+	/**
+	 * @type {number}
+	 */
+	var previousEndSlope;
+
+	for (
+		y = data.originY + deltaY;
+		y >= data.minY && y <= data.maxY;
+		y += deltaY, obstaclesInLastLine = totalObstacles, ++iteration
+	) {
+		halfSlope = 0.5 / iteration;
+		previousEndSlope = -1;
+		for (
+			processedCell = Math.floor(minSlope * iteration + 0.5), x = data.originX + (processedCell * deltaX);
+			processedCell <= iteration && x >= data.minX && x <= data.maxX;
+			x += deltaX, ++processedCell, previousEndSlope = endSlope
+		) {
 			visible = true;
 			extended = false;
-			centreSlope = processedCell * slopesPerCell;
-			startSlope = centreSlope - halfSlopes;
-			endSlope = centreSlope + halfSlopes;
+			centreSlope = processedCell / iteration;
+			startSlope = previousEndSlope;
+			endSlope = centreSlope + halfSlope;
+
 			if (obstaclesInLastLine > 0) {
 				if (
 					!(
@@ -192,17 +178,19 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 					visible = false;
 				} else {
 					for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
-						if (startSlope <= endAngle[idx] && endSlope >= startAngle[idx]) {
+						if (startSlope <= endSlopes[idx] && endSlope >= startSlopes[idx]) {
 							if (this._isTransparent(x, y)) {
-								if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
+								if (centreSlope > startSlopes[idx] && centreSlope < endSlopes[idx]) {
 									visible = false;
+									break;
 								}
 							} else {
-								if (startSlope >= startAngle[idx] && endSlope <= endAngle[idx]) {
+								if (startSlope >= startSlopes[idx] && endSlope <= endSlopes[idx]) {
 									visible = false;
+									break;
 								} else {
-									startAngle[idx] = Math.min(startAngle[idx], startSlope);
-									endAngle[idx] = Math.max(endAngle[idx], endSlope);
+									startSlopes[idx] = Math.min(startSlopes[idx], startSlope);
+									endSlopes[idx] = Math.max(endSlopes[idx], endSlope);
 									extended = true;
 								}
 							}
@@ -211,30 +199,16 @@ Mrpas.prototype._computeOctantY = function(deltaX, deltaY, data) {
 				}
 			}
 			if (visible) {
-				done = false;
 				data.setVisible(x, y);
 				if (!this._isTransparent(x, y)) {
-					if (minAngle >= startSlope) {
-						minAngle = endSlope;
-						if (processedCell == iteration) {
-							done = true;
-						}
+					if (minSlope >= startSlope) {
+						minSlope = endSlope;
 					} else if (!extended) {
-						startAngle[totalObstacles] = startSlope;
-						endAngle[totalObstacles++] = endSlope;
+						startSlopes[totalObstacles] = startSlope;
+						endSlopes[totalObstacles++] = endSlope;
 					}
 				}
 			}
-			processedCell++;
-		}
-		if (iteration == data.radius) {
-			done = true;
-		}
-		iteration++;
-		obstaclesInLastLine = totalObstacles;
-		y += deltaY;
-		if (y < data.minY || y > data.maxY) {
-			done = true;
 		}
 	}
 };
@@ -250,22 +224,17 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 	/**
 	 * @type {Array.<number>}
 	 */
-	var startAngle = [];
+	var startSlopes = [];
 
 	/**
 	 * @type {Array.<number>}
 	 */
-	var endAngle = [];
+	var endSlopes = [];
 
 	/**
 	 * @type {number}
 	 */
 	var iteration = 1;
-
-	/**
-	 * @type {boolean}
-	 */
-	var done = false;
 
 	/**
 	 * @type {number}
@@ -280,7 +249,7 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 	/**
 	 * @type {number}
 	 */
-	var minAngle = 0;
+	var minSlope = 0;
 
 	/**
 	 * @type {number}
@@ -295,27 +264,12 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 	/**
 	 * @type {number}
 	 */
-	var slopesPerCell;
-
-	/**
-	 * @type {number}
-	 */
-	var halfSlopes;
+	var halfSlope;
 
 	/**
 	 * @type {number}
 	 */
 	var processedCell;
-
-	/**
-	 * @type {number}
-	 */
-	var min;
-
-	/**
-	 * @type {number}
-	 */
-	var max;
 
 	/**
 	 * @type {boolean}
@@ -342,23 +296,29 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 	 */
 	var endSlope;
 
-	x = data.originX + deltaX;
-	if (x < data.minX || x > data.maxX) {
-		done = true;
-	}
-	while (!done) {
-		slopesPerCell = 1 / iteration;
-		halfSlopes = slopesPerCell / 2;
-		processedCell = Math.floor(minAngle / slopesPerCell + halfSlopes / slopesPerCell);
-		min = Math.max(data.minY, data.originY - iteration);
-		max = Math.min(data.maxY, data.originY + iteration);
-		done = true;
-		for (y = data.originY + (processedCell * deltaY); y >= min && y <= max; y += deltaY) {
+	/**
+	 * @type {number}
+	 */
+	var previousEndSlope;
+
+	for (
+		x = data.originX + deltaX;
+		x >= data.minX && x <= data.maxX;
+		x += deltaX, obstaclesInLastLine = totalObstacles, ++iteration
+	) {
+		halfSlope = 0.5 / iteration;
+		previousEndSlope = -1;
+		for (
+			processedCell = Math.floor(minSlope * iteration + 0.5), y = data.originY + (processedCell * deltaY);
+			processedCell <= iteration && y >= data.minY && y <= data.maxY;
+			y += deltaY, ++processedCell, previousEndSlope = endSlope
+		) {
 			visible = true;
 			extended = false;
-			centreSlope = processedCell * slopesPerCell;
-			startSlope = centreSlope - halfSlopes;
-			endSlope = centreSlope + halfSlopes;
+			centreSlope = processedCell / iteration;
+			startSlope = previousEndSlope;
+			endSlope = centreSlope + halfSlope;
+
 			if (obstaclesInLastLine > 0) {
 				if (
 					!(
@@ -373,17 +333,19 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 					visible = false;
 				} else {
 					for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
-						if (startSlope <= endAngle[idx] && endSlope >= startAngle[idx]) {
+						if (startSlope <= endSlopes[idx] && endSlope >= startSlopes[idx]) {
 							if (this._isTransparent(x, y)) {
-								if (centreSlope > startAngle[idx] && centreSlope < endAngle[idx]) {
+								if (centreSlope > startSlopes[idx] && centreSlope < endSlopes[idx]) {
 									visible = false;
+									break;
 								}
 							} else {
-								if (startSlope >= startAngle[idx] && endSlope <= endAngle[idx]) {
+								if (startSlope >= startSlopes[idx] && endSlope <= endSlopes[idx]) {
 									visible = false;
+									break;
 								} else {
-									startAngle[idx] = Math.min(startAngle[idx], startSlope);
-									endAngle[idx] = Math.max(endAngle[idx], endSlope);
+									startSlopes[idx] = Math.min(startSlopes[idx], startSlope);
+									endSlopes[idx] = Math.max(endSlopes[idx], endSlope);
 									extended = true;
 								}
 							}
@@ -392,30 +354,16 @@ Mrpas.prototype._computeOctantX = function(deltaX, deltaY, data) {
 				}
 			}
 			if (visible) {
-				done = false;
 				data.setVisible(x, y);
 				if (!this._isTransparent(x, y)) {
-					if (minAngle >= startSlope) {
-						minAngle = endSlope;
-						if (processedCell == iteration) {
-							done = true;
-						}
+					if (minSlope >= startSlope) {
+						minSlope = endSlope;
 					} else if (!extended) {
-						startAngle[totalObstacles] = startSlope;
-						endAngle[totalObstacles++] = endSlope;
+						startSlopes[totalObstacles] = startSlope;
+						endSlopes[totalObstacles++] = endSlope;
 					}
 				}
 			}
-			processedCell++;
-		}
-		if (iteration == data.radius) {
-			done = true;
-		}
-		iteration++;
-		obstaclesInLastLine = totalObstacles;
-		x += deltaX;
-		if (x < data.minX || x > data.maxX) {
-			done = true;
 		}
 	}
 };
