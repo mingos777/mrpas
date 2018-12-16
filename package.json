@@ -3,7 +3,10 @@
   "version": "1.2.1",
   "description": "A Field of View (FOV) computation algorithm.",
   "main": "src/index.js",
-  "scripts": {},
+  "scripts": {
+    "watch": "tsc --watch",
+    "build": "tsc"
+  },
   "typings": "src/index.d.ts",
   "repository": {
     "type": "git",
@@ -15,5 +18,8 @@
   ],
   "author": "Dominik Marczuk <mingos.nospam@gmail.com> (http://dominikmarczuk.pl)",
   "license": "BSD-2-Clause",
-  "homepage": "https://bitbucket.org/mingos/mrpas"
+  "homepage": "https://bitbucket.org/mingos/mrpas",
+  "devDependencies": {
+    "typescript": "^3.2.2"
+  }
 }
