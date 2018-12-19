@@ -1,5 +1,4 @@
-src/**/*.ts
-!src/**/*.d.ts
+src/index.ts
 .gitignore
 package-lock.json
 tsconfig.json
