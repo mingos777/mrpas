@@ -17,9 +17,15 @@ Or grab the code from the [repository](https://bitbucket.org/umbraprojekt/mrpas)
 Instantiate a `Mrpas` object by passing it the map dimensions and a callback for determining map cell transparency:
 
 ```
-const Mrpas = require("mrpas").Mrpas;
+const { Mrpas } = require("mrpas");
 
 const fov = new Mrpas(20, 20, (x, y) => map[x][y].transparent);
+```
+
+ES modules can import the same named export:
+
+```
+import { Mrpas } from "mrpas";
 ```
 
 ### Compute FOV

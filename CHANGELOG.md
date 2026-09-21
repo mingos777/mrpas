@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0
+### Performance improvements
+* optimised FOV computation hot paths by caching callbacks and map data locally, avoiding repeated transparency checks, and reducing per-cell maths overhead
+
 ## 2.0.0
 ### Bugfixes
 * fixed iterator increment again

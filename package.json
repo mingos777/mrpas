@@ -1,13 +1,26 @@
 {
   "name": "mrpas",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A Field of View (FOV) computation algorithm.",
-  "main": "src/index.js",
-  "scripts": {
-    "watch": "tsc --watch",
-    "build": "tsc"
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
   },
-  "typings": "src/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "watch": "tsc --watch -p tsconfig.esm.json"
+  },
   "repository": {
     "type": "git",
     "url": "https://bitbucket.org/umbraprojekt/mrpas.git"
@@ -20,6 +33,6 @@
   "license": "BSD-2-Clause",
   "homepage": "https://bitbucket.org/mingos/mrpas",
   "devDependencies": {
-    "typescript": "^3.2.2"
+    "typescript": "^7.0.2"
   }
 }

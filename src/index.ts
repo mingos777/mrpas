@@ -8,7 +8,6 @@ interface FovData {
 	maxY: number;
 	originX: number;
 	originY: number;
-	radius: number;
 	isVisible: IsVisibleFunc;
 	setVisible: SetVisibleFunc;
 }
@@ -24,6 +23,15 @@ export class Mrpas {
 	private computeOctantY(deltaX: number, deltaY: number, data: FovData): void {
 		const startSlopes: Array<number> = [];
 		const endSlopes: Array<number> = [];
+		const minX: number = data.minX;
+		const maxX: number = data.maxX;
+		const minY: number = data.minY;
+		const maxY: number = data.maxY;
+		const originX: number = data.originX;
+		const originY: number = data.originY;
+		const isTransparent: IsTransparentFunc = this.isTransparent;
+		const isVisible: IsVisibleFunc = data.isVisible;
+		const setVisible: SetVisibleFunc = data.setVisible;
 		let iteration: number = 1;
 		let totalObstacles: number = 0;
 		let obstaclesInLastLine: number = 0;
@@ -38,17 +46,19 @@ export class Mrpas {
 		let startSlope: number;
 		let endSlope: number;
 		let previousEndSlope: number;
+		let cellTransparent: boolean = false;
+		let transparencyChecked: boolean;
 
 		for (
-			y = data.originY + deltaY;
-			y >= data.minY && y <= data.maxY;
+			y = originY + deltaY;
+			y >= minY && y <= maxY;
 			y += deltaY, obstaclesInLastLine = totalObstacles, ++iteration
 		) {
 			halfSlope = 0.5 / iteration;
 			previousEndSlope = -1;
 			for (
-				processedCell = Math.floor(minSlope * iteration + 0.5), x = data.originX + (processedCell * deltaX);
-				processedCell <= iteration && x >= data.minX && x <= data.maxX;
+				processedCell = Math.floor(minSlope * iteration + 0.5), x = originX + (processedCell * deltaX);
+				processedCell <= iteration && x >= minX && x <= maxX;
 				x += deltaX, ++processedCell, previousEndSlope = endSlope
 			) {
 				visible = true;
@@ -56,23 +66,28 @@ export class Mrpas {
 				centreSlope = processedCell / iteration;
 				startSlope = previousEndSlope;
 				endSlope = centreSlope + halfSlope;
+				transparencyChecked = false;
 
 				if (obstaclesInLastLine > 0) {
 					if (
 						!(
-							data.isVisible(x, y - deltaY) &&
-							this.isTransparent(x, y - deltaY)
+							isVisible(x, y - deltaY) &&
+							isTransparent(x, y - deltaY)
 						) &&
 						!(
-							data.isVisible(x - deltaX, y - deltaY) &&
-							this.isTransparent(x - deltaX, y - deltaY)
+							isVisible(x - deltaX, y - deltaY) &&
+							isTransparent(x - deltaX, y - deltaY)
 						)
 					) {
 						visible = false;
 					} else {
 						for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
 							if (startSlope <= endSlopes[idx] && endSlope >= startSlopes[idx]) {
-								if (this.isTransparent(x, y)) {
+								if (!transparencyChecked) {
+									cellTransparent = isTransparent(x, y);
+									transparencyChecked = true;
+								}
+								if (cellTransparent) {
 									if (centreSlope > startSlopes[idx] && centreSlope < endSlopes[idx]) {
 										visible = false;
 										break;
@@ -82,8 +97,12 @@ export class Mrpas {
 										visible = false;
 										break;
 									} else {
-										startSlopes[idx] = Math.min(startSlopes[idx], startSlope);
-										endSlopes[idx] = Math.max(endSlopes[idx], endSlope);
+										if (startSlope < startSlopes[idx]) {
+											startSlopes[idx] = startSlope;
+										}
+										if (endSlope > endSlopes[idx]) {
+											endSlopes[idx] = endSlope;
+										}
 										extended = true;
 									}
 								}
@@ -92,8 +111,11 @@ export class Mrpas {
 					}
 				}
 				if (visible) {
-					data.setVisible(x, y);
-					if (!this.isTransparent(x, y)) {
+					setVisible(x, y);
+					if (!transparencyChecked) {
+						cellTransparent = isTransparent(x, y);
+					}
+					if (!cellTransparent) {
 						if (minSlope >= startSlope) {
 							minSlope = endSlope;
 						} else if (!extended) {
@@ -109,6 +131,15 @@ export class Mrpas {
 	private computeOctantX(deltaX: number, deltaY: number, data: FovData): void {
 		const startSlopes: Array<number> = [];
 		const endSlopes: Array<number> = [];
+		const minX: number = data.minX;
+		const maxX: number = data.maxX;
+		const minY: number = data.minY;
+		const maxY: number = data.maxY;
+		const originX: number = data.originX;
+		const originY: number = data.originY;
+		const isTransparent: IsTransparentFunc = this.isTransparent;
+		const isVisible: IsVisibleFunc = data.isVisible;
+		const setVisible: SetVisibleFunc = data.setVisible;
 		let iteration: number = 1;
 		let totalObstacles: number = 0;
 		let obstaclesInLastLine: number = 0;
@@ -123,17 +154,19 @@ export class Mrpas {
 		let startSlope: number;
 		let endSlope: number;
 		let previousEndSlope: number;
+		let cellTransparent: boolean = false;
+		let transparencyChecked: boolean;
 
 		for (
-			x = data.originX + deltaX;
-			x >= data.minX && x <= data.maxX;
+			x = originX + deltaX;
+			x >= minX && x <= maxX;
 			x += deltaX, obstaclesInLastLine = totalObstacles, ++iteration
 		) {
 			halfSlope = 0.5 / iteration;
 			previousEndSlope = -1;
 			for (
-				processedCell = Math.floor(minSlope * iteration + 0.5), y = data.originY + (processedCell * deltaY);
-				processedCell <= iteration && y >= data.minY && y <= data.maxY;
+				processedCell = Math.floor(minSlope * iteration + 0.5), y = originY + (processedCell * deltaY);
+				processedCell <= iteration && y >= minY && y <= maxY;
 				y += deltaY, ++processedCell, previousEndSlope = endSlope
 			) {
 				visible = true;
@@ -141,23 +174,28 @@ export class Mrpas {
 				centreSlope = processedCell / iteration;
 				startSlope = previousEndSlope;
 				endSlope = centreSlope + halfSlope;
+				transparencyChecked = false;
 
 				if (obstaclesInLastLine > 0) {
 					if (
 						!(
-							data.isVisible(x - deltaX, y) &&
-							this.isTransparent(x - deltaX, y)
+							isVisible(x - deltaX, y) &&
+							isTransparent(x - deltaX, y)
 						) &&
 						!(
-							data.isVisible(x - deltaX, y - deltaY) &&
-							this.isTransparent(x - deltaX, y - deltaY)
+							isVisible(x - deltaX, y - deltaY) &&
+							isTransparent(x - deltaX, y - deltaY)
 						)
 					) {
 						visible = false;
 					} else {
 						for (var idx = 0; idx < obstaclesInLastLine && visible; ++idx) {
 							if (startSlope <= endSlopes[idx] && endSlope >= startSlopes[idx]) {
-								if (this.isTransparent(x, y)) {
+								if (!transparencyChecked) {
+									cellTransparent = isTransparent(x, y);
+									transparencyChecked = true;
+								}
+								if (cellTransparent) {
 									if (centreSlope > startSlopes[idx] && centreSlope < endSlopes[idx]) {
 										visible = false;
 										break;
@@ -167,8 +205,12 @@ export class Mrpas {
 										visible = false;
 										break;
 									} else {
-										startSlopes[idx] = Math.min(startSlopes[idx], startSlope);
-										endSlopes[idx] = Math.max(endSlopes[idx], endSlope);
+										if (startSlope < startSlopes[idx]) {
+											startSlopes[idx] = startSlope;
+										}
+										if (endSlope > endSlopes[idx]) {
+											endSlopes[idx] = endSlope;
+										}
 										extended = true;
 									}
 								}
@@ -177,8 +219,11 @@ export class Mrpas {
 					}
 				}
 				if (visible) {
-					data.setVisible(x, y);
-					if (!this.isTransparent(x, y)) {
+					setVisible(x, y);
+					if (!transparencyChecked) {
+						cellTransparent = isTransparent(x, y);
+					}
+					if (!cellTransparent) {
 						if (minSlope >= startSlope) {
 							minSlope = endSlope;
 						} else if (!extended) {
@@ -212,7 +257,6 @@ export class Mrpas {
 			maxY: Math.min(this.mapHeight - 1, originY + radius),
 			originX: originX,
 			originY: originY,
-			radius: radius,
 			isVisible: isVisible,
 			setVisible: setVisible
 		};

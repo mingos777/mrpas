@@ -1,13 +1,12 @@
 {
 	"compilerOptions": {
-		"target": "es5",
-		"module": "commonjs",
-		"declaration": true,
+		"target": "es2022",
 		"removeComments": true,
 		"noImplicitAny": true,
 		"noUnusedLocals": true
 	},
 	"exclude": [
-		"node_modules/**/*"
+		"node_modules/**/*",
+		"dist/**/*"
 	]
 }

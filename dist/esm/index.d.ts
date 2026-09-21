@@ -1,6 +1,6 @@
-export declare type IsTransparentFunc = (x: number, y: number) => boolean;
-export declare type IsVisibleFunc = (x: number, y: number) => boolean;
-export declare type SetVisibleFunc = (x: number, y: number) => void;
+export type IsTransparentFunc = (x: number, y: number) => boolean;
+export type IsVisibleFunc = (x: number, y: number) => boolean;
+export type SetVisibleFunc = (x: number, y: number) => void;
 export declare class Mrpas {
     private mapWidth;
     private mapHeight;
