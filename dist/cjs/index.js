@@ -38,10 +38,13 @@ class Mrpas {
         let previousEndSlope;
         let cellTransparent = false;
         let transparencyChecked;
+        let firstCell;
+        let behindOpen = false;
+        let diagonalOpen;
         for (y = originY + deltaY; y >= minY && y <= maxY; y += deltaY, obstaclesInLastLine = totalObstacles, ++iteration) {
             halfSlope = 0.5 / iteration;
             previousEndSlope = -1;
-            for (processedCell = Math.floor(minSlope * iteration + 0.5), x = originX + (processedCell * deltaX); processedCell <= iteration && x >= minX && x <= maxX; x += deltaX, ++processedCell, previousEndSlope = endSlope) {
+            for (firstCell = processedCell = Math.floor(minSlope * iteration + 0.5), x = originX + (processedCell * deltaX); processedCell <= iteration && x >= minX && x <= maxX; x += deltaX, ++processedCell, previousEndSlope = endSlope) {
                 visible = true;
                 extended = false;
                 centreSlope = processedCell / iteration;
@@ -49,10 +52,12 @@ class Mrpas {
                 endSlope = centreSlope + halfSlope;
                 transparencyChecked = false;
                 if (obstaclesInLastLine > 0) {
-                    if (!(isVisible(x, y - deltaY) &&
-                        isTransparent(x, y - deltaY)) &&
-                        !(isVisible(x - deltaX, y - deltaY) &&
-                            isTransparent(x - deltaX, y - deltaY))) {
+                    diagonalOpen = behindOpen;
+                    behindOpen = isVisible(x, y - deltaY) && isTransparent(x, y - deltaY);
+                    if (!behindOpen &&
+                        !(processedCell > firstCell
+                            ? diagonalOpen
+                            : isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY))) {
                         visible = false;
                     }
                     else {
@@ -103,6 +108,9 @@ class Mrpas {
                     }
                 }
             }
+            if (minSlope > 1) {
+                break;
+            }
         }
     }
     computeOctantX(deltaX, deltaY, data) {
@@ -133,10 +141,13 @@ class Mrpas {
         let previousEndSlope;
         let cellTransparent = false;
         let transparencyChecked;
+        let firstCell;
+        let behindOpen = false;
+        let diagonalOpen;
         for (x = originX + deltaX; x >= minX && x <= maxX; x += deltaX, obstaclesInLastLine = totalObstacles, ++iteration) {
             halfSlope = 0.5 / iteration;
             previousEndSlope = -1;
-            for (processedCell = Math.floor(minSlope * iteration + 0.5), y = originY + (processedCell * deltaY); processedCell <= iteration && y >= minY && y <= maxY; y += deltaY, ++processedCell, previousEndSlope = endSlope) {
+            for (firstCell = processedCell = Math.floor(minSlope * iteration + 0.5), y = originY + (processedCell * deltaY); processedCell <= iteration && y >= minY && y <= maxY; y += deltaY, ++processedCell, previousEndSlope = endSlope) {
                 visible = true;
                 extended = false;
                 centreSlope = processedCell / iteration;
@@ -144,10 +155,12 @@ class Mrpas {
                 endSlope = centreSlope + halfSlope;
                 transparencyChecked = false;
                 if (obstaclesInLastLine > 0) {
-                    if (!(isVisible(x - deltaX, y) &&
-                        isTransparent(x - deltaX, y)) &&
-                        !(isVisible(x - deltaX, y - deltaY) &&
-                            isTransparent(x - deltaX, y - deltaY))) {
+                    diagonalOpen = behindOpen;
+                    behindOpen = isVisible(x - deltaX, y) && isTransparent(x - deltaX, y);
+                    if (!behindOpen &&
+                        !(processedCell > firstCell
+                            ? diagonalOpen
+                            : isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY))) {
                         visible = false;
                     }
                     else {
@@ -197,6 +210,9 @@ class Mrpas {
                         }
                     }
                 }
+            }
+            if (minSlope > 1) {
+                break;
             }
         }
     }

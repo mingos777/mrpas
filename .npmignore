@@ -1,6 +1,0 @@
-src/index.ts
-.gitignore
-package-lock.json
-tsconfig.json
-tsconfig.cjs.json
-tsconfig.esm.json

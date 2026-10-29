@@ -1,6 +1,6 @@
 {
   "name": "mrpas",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A Field of View (FOV) computation algorithm.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -23,15 +23,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.org/umbraprojekt/mrpas.git"
+    "url": "git+https://github.com/mingos777/mrpas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mingos777/mrpas/issues"
   },
   "keywords": [
     "fov",
     "roguelike"
   ],
-  "author": "Dominik Marczuk <mingos.nospam@gmail.com> (http://dominikmarczuk.pl)",
+  "author": "Dominik Marczuk <mingos.nospam@gmail.com> (https://dominikmarczuk.pl)",
   "license": "BSD-2-Clause",
-  "homepage": "https://bitbucket.org/mingos/mrpas",
+  "homepage": "https://github.com/mingos777/mrpas",
   "devDependencies": {
     "typescript": "^7.0.2"
   }

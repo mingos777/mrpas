@@ -48,6 +48,11 @@ export class Mrpas {
 		let previousEndSlope: number;
 		let cellTransparent: boolean = false;
 		let transparencyChecked: boolean;
+		let firstCell: number;
+		// whether the cell behind the processed one in the previous line is visible and transparent;
+		// for the next processed cell, it's the diagonal one, so it doesn't need to be computed again
+		let behindOpen: boolean = false;
+		let diagonalOpen: boolean;
 
 		for (
 			y = originY + deltaY;
@@ -57,7 +62,7 @@ export class Mrpas {
 			halfSlope = 0.5 / iteration;
 			previousEndSlope = -1;
 			for (
-				processedCell = Math.floor(minSlope * iteration + 0.5), x = originX + (processedCell * deltaX);
+				firstCell = processedCell = Math.floor(minSlope * iteration + 0.5), x = originX + (processedCell * deltaX);
 				processedCell <= iteration && x >= minX && x <= maxX;
 				x += deltaX, ++processedCell, previousEndSlope = endSlope
 			) {
@@ -69,14 +74,14 @@ export class Mrpas {
 				transparencyChecked = false;
 
 				if (obstaclesInLastLine > 0) {
+					diagonalOpen = behindOpen;
+					behindOpen = isVisible(x, y - deltaY) && isTransparent(x, y - deltaY);
 					if (
+						!behindOpen &&
 						!(
-							isVisible(x, y - deltaY) &&
-							isTransparent(x, y - deltaY)
-						) &&
-						!(
-							isVisible(x - deltaX, y - deltaY) &&
-							isTransparent(x - deltaX, y - deltaY)
+							processedCell > firstCell
+								? diagonalOpen
+								: isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY)
 						)
 					) {
 						visible = false;
@@ -125,6 +130,10 @@ export class Mrpas {
 					}
 				}
 			}
+			// the whole octant is blocked; no further line contains any cells to process
+			if (minSlope > 1) {
+				break;
+			}
 		}
 	}
 
@@ -156,6 +165,11 @@ export class Mrpas {
 		let previousEndSlope: number;
 		let cellTransparent: boolean = false;
 		let transparencyChecked: boolean;
+		let firstCell: number;
+		// whether the cell behind the processed one in the previous line is visible and transparent;
+		// for the next processed cell, it's the diagonal one, so it doesn't need to be computed again
+		let behindOpen: boolean = false;
+		let diagonalOpen: boolean;
 
 		for (
 			x = originX + deltaX;
@@ -165,7 +179,7 @@ export class Mrpas {
 			halfSlope = 0.5 / iteration;
 			previousEndSlope = -1;
 			for (
-				processedCell = Math.floor(minSlope * iteration + 0.5), y = originY + (processedCell * deltaY);
+				firstCell = processedCell = Math.floor(minSlope * iteration + 0.5), y = originY + (processedCell * deltaY);
 				processedCell <= iteration && y >= minY && y <= maxY;
 				y += deltaY, ++processedCell, previousEndSlope = endSlope
 			) {
@@ -177,14 +191,14 @@ export class Mrpas {
 				transparencyChecked = false;
 
 				if (obstaclesInLastLine > 0) {
+					diagonalOpen = behindOpen;
+					behindOpen = isVisible(x - deltaX, y) && isTransparent(x - deltaX, y);
 					if (
+						!behindOpen &&
 						!(
-							isVisible(x - deltaX, y) &&
-							isTransparent(x - deltaX, y)
-						) &&
-						!(
-							isVisible(x - deltaX, y - deltaY) &&
-							isTransparent(x - deltaX, y - deltaY)
+							processedCell > firstCell
+								? diagonalOpen
+								: isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY)
 						)
 					) {
 						visible = false;
@@ -232,6 +246,9 @@ export class Mrpas {
 						}
 					}
 				}
+			}
+			if (minSlope > 1) {
+				break;
 			}
 		}
 	}
