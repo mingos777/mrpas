@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.2
+### Performance improvements
+* allocated the slope arrays once per FOV computation instead of once per octant
+
 ## 2.1.1
 ### Performance improvements
 * reused the previous line's visibility check between adjacent cells, so all but the first cell in a line check at most one previous line cell instead of two

@@ -10,6 +10,8 @@ interface FovData {
 	originY: number;
 	isVisible: IsVisibleFunc;
 	setVisible: SetVisibleFunc;
+	startSlopes: Array<number>;
+	endSlopes: Array<number>;
 }
 
 export class Mrpas {
@@ -21,8 +23,8 @@ export class Mrpas {
 	) {}
 
 	private computeOctantY(deltaX: number, deltaY: number, data: FovData): void {
-		const startSlopes: Array<number> = [];
-		const endSlopes: Array<number> = [];
+		const startSlopes: Array<number> = data.startSlopes;
+		const endSlopes: Array<number> = data.endSlopes;
 		const minX: number = data.minX;
 		const maxX: number = data.maxX;
 		const minY: number = data.minY;
@@ -138,8 +140,8 @@ export class Mrpas {
 	}
 
 	private computeOctantX(deltaX: number, deltaY: number, data: FovData): void {
-		const startSlopes: Array<number> = [];
-		const endSlopes: Array<number> = [];
+		const startSlopes: Array<number> = data.startSlopes;
+		const endSlopes: Array<number> = data.endSlopes;
 		const minX: number = data.minX;
 		const maxX: number = data.maxX;
 		const minY: number = data.minY;
@@ -275,7 +277,9 @@ export class Mrpas {
 			originX: originX,
 			originY: originY,
 			isVisible: isVisible,
-			setVisible: setVisible
+			setVisible: setVisible,
+			startSlopes: [],
+			endSlopes: []
 		};
 
 		this.computeOctantY(1, 1, data);

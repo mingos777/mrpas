@@ -11,8 +11,8 @@ class Mrpas {
         this.isTransparent = isTransparent;
     }
     computeOctantY(deltaX, deltaY, data) {
-        const startSlopes = [];
-        const endSlopes = [];
+        const startSlopes = data.startSlopes;
+        const endSlopes = data.endSlopes;
         const minX = data.minX;
         const maxX = data.maxX;
         const minY = data.minY;
@@ -114,8 +114,8 @@ class Mrpas {
         }
     }
     computeOctantX(deltaX, deltaY, data) {
-        const startSlopes = [];
-        const endSlopes = [];
+        const startSlopes = data.startSlopes;
+        const endSlopes = data.endSlopes;
         const minX = data.minX;
         const maxX = data.maxX;
         const minY = data.minY;
@@ -230,7 +230,9 @@ class Mrpas {
             originX: originX,
             originY: originY,
             isVisible: isVisible,
-            setVisible: setVisible
+            setVisible: setVisible,
+            startSlopes: [],
+            endSlopes: []
         };
         this.computeOctantY(1, 1, data);
         this.computeOctantX(1, 1, data);
