@@ -10,17 +10,28 @@ interface FovData {
 	originY: number;
 	isVisible: IsVisibleFunc;
 	setVisible: SetVisibleFunc;
+	// visibility of the cells within minX..maxX, minY..maxY, if tracked internally instead of using isVisible
+	visibility: Uint8Array | null;
 	startSlopes: Array<number>;
 	endSlopes: Array<number>;
 }
 
+// flat, row-major map data of mapWidth * mapHeight values; truthy values denote transparent cells
+export type TransparencyData = ArrayLike<unknown>;
+
 export class Mrpas {
+	private readonly isTransparent: IsTransparentFunc;
 
 	public constructor(
 		private mapWidth: number,
 		private mapHeight: number,
-		private readonly isTransparent: IsTransparentFunc
-	) {}
+		transparency: IsTransparentFunc | TransparencyData
+	) {
+		this.isTransparent = typeof transparency === "function"
+			? transparency
+			: (x: number, y: number): boolean => x >= 0 && x < this.mapWidth && y >= 0 && y < this.mapHeight &&
+				!!transparency[y * this.mapWidth + x];
+	}
 
 	private computeOctantY(deltaX: number, deltaY: number, data: FovData): void {
 		const startSlopes: Array<number> = data.startSlopes;
@@ -34,6 +45,8 @@ export class Mrpas {
 		const isTransparent: IsTransparentFunc = this.isTransparent;
 		const isVisible: IsVisibleFunc = data.isVisible;
 		const setVisible: SetVisibleFunc = data.setVisible;
+		const visibility: Uint8Array | null = data.visibility;
+		const width: number = maxX - minX + 1;
 		let iteration: number = 1;
 		let totalObstacles: number = 0;
 		let obstaclesInLastLine: number = 0;
@@ -77,13 +90,17 @@ export class Mrpas {
 
 				if (obstaclesInLastLine > 0) {
 					diagonalOpen = behindOpen;
-					behindOpen = isVisible(x, y - deltaY) && isTransparent(x, y - deltaY);
+					// the behind cell is always within the bounds, but the diagonal one may lie past minX or maxX
+					behindOpen = (visibility === null ? isVisible(x, y - deltaY) : visibility[(y - deltaY - minY) * width + x - minX] === 1) &&
+						isTransparent(x, y - deltaY);
 					if (
 						!behindOpen &&
 						!(
 							processedCell > firstCell
 								? diagonalOpen
-								: isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY)
+								: (visibility === null ? isVisible(x - deltaX, y - deltaY) : x - deltaX >= minX && x - deltaX <= maxX &&
+										visibility[(y - deltaY - minY) * width + x - deltaX - minX] === 1) &&
+									isTransparent(x - deltaX, y - deltaY)
 						)
 					) {
 						visible = false;
@@ -119,6 +136,9 @@ export class Mrpas {
 				}
 				if (visible) {
 					setVisible(x, y);
+					if (visibility !== null) {
+						visibility[(y - minY) * width + x - minX] = 1;
+					}
 					if (!transparencyChecked) {
 						cellTransparent = isTransparent(x, y);
 					}
@@ -151,6 +171,8 @@ export class Mrpas {
 		const isTransparent: IsTransparentFunc = this.isTransparent;
 		const isVisible: IsVisibleFunc = data.isVisible;
 		const setVisible: SetVisibleFunc = data.setVisible;
+		const visibility: Uint8Array | null = data.visibility;
+		const width: number = maxX - minX + 1;
 		let iteration: number = 1;
 		let totalObstacles: number = 0;
 		let obstaclesInLastLine: number = 0;
@@ -194,13 +216,17 @@ export class Mrpas {
 
 				if (obstaclesInLastLine > 0) {
 					diagonalOpen = behindOpen;
-					behindOpen = isVisible(x - deltaX, y) && isTransparent(x - deltaX, y);
+					// the behind cell is always within the bounds, but the diagonal one may lie past minY or maxY
+					behindOpen = (visibility === null ? isVisible(x - deltaX, y) : visibility[(y - minY) * width + x - deltaX - minX] === 1) &&
+						isTransparent(x - deltaX, y);
 					if (
 						!behindOpen &&
 						!(
 							processedCell > firstCell
 								? diagonalOpen
-								: isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY)
+								: (visibility === null ? isVisible(x - deltaX, y - deltaY) : y - deltaY >= minY && y - deltaY <= maxY &&
+										visibility[(y - deltaY - minY) * width + x - deltaX - minX] === 1) &&
+									isTransparent(x - deltaX, y - deltaY)
 						)
 					) {
 						visible = false;
@@ -236,6 +262,9 @@ export class Mrpas {
 				}
 				if (visible) {
 					setVisible(x, y);
+					if (visibility !== null) {
+						visibility[(y - minY) * width + x - minX] = 1;
+					}
 					if (!transparencyChecked) {
 						cellTransparent = isTransparent(x, y);
 					}
@@ -260,24 +289,49 @@ export class Mrpas {
 		this.mapHeight = mapHeight;
 	}
 
+	public compute(originX: number, originY: number, radius: number, setVisible: SetVisibleFunc): void;
 	public compute(
 		originX: number,
 		originY: number,
 		radius: number,
 		isVisible: IsVisibleFunc,
 		setVisible: SetVisibleFunc
-	) {
+	): void;
+	public compute(
+		originX: number,
+		originY: number,
+		radius: number,
+		isVisibleOrSetVisible: IsVisibleFunc | SetVisibleFunc,
+		setVisibleFunc?: SetVisibleFunc
+	): void {
+		const minX: number = Math.max(0, originX - radius);
+		const minY: number = Math.max(0, originY - radius);
+		const maxX: number = Math.min(this.mapWidth - 1, originX + radius);
+		const maxY: number = Math.min(this.mapHeight - 1, originY + radius);
+		const width: number = maxX - minX + 1;
+		// without a visibility callback, the visibility of the processed area is tracked internally, so that the
+		// result doesn't depend on any visibility the caller has set before
+		const visibility: Uint8Array | null = setVisibleFunc === undefined
+			? new Uint8Array(width * (maxY - minY + 1))
+			: null;
+		const setVisible: SetVisibleFunc = setVisibleFunc ?? isVisibleOrSetVisible as SetVisibleFunc;
+
+		if (visibility !== null) {
+			visibility[(originY - minY) * width + originX - minX] = 1;
+		}
 		setVisible(originX, originY);
 
 		const data: FovData = {
-			minX: Math.max(0, originX - radius),
-			minY: Math.max(0, originY - radius),
-			maxX: Math.min(this.mapWidth - 1, originX + radius),
-			maxY: Math.min(this.mapHeight - 1, originY + radius),
+			minX: minX,
+			minY: minY,
+			maxX: maxX,
+			maxY: maxY,
 			originX: originX,
 			originY: originY,
-			isVisible: isVisible,
+			// only called when there's no visibility buffer
+			isVisible: isVisibleOrSetVisible as IsVisibleFunc,
 			setVisible: setVisible,
+			visibility: visibility,
 			startSlopes: [],
 			endSlopes: []
 		};

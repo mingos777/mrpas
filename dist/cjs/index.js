@@ -5,10 +5,13 @@ class Mrpas {
     mapWidth;
     mapHeight;
     isTransparent;
-    constructor(mapWidth, mapHeight, isTransparent) {
+    constructor(mapWidth, mapHeight, transparency) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
-        this.isTransparent = isTransparent;
+        this.isTransparent = typeof transparency === "function"
+            ? transparency
+            : (x, y) => x >= 0 && x < this.mapWidth && y >= 0 && y < this.mapHeight &&
+                !!transparency[y * this.mapWidth + x];
     }
     computeOctantY(deltaX, deltaY, data) {
         const startSlopes = data.startSlopes;
@@ -22,6 +25,8 @@ class Mrpas {
         const isTransparent = this.isTransparent;
         const isVisible = data.isVisible;
         const setVisible = data.setVisible;
+        const visibility = data.visibility;
+        const width = maxX - minX + 1;
         let iteration = 1;
         let totalObstacles = 0;
         let obstaclesInLastLine = 0;
@@ -53,11 +58,14 @@ class Mrpas {
                 transparencyChecked = false;
                 if (obstaclesInLastLine > 0) {
                     diagonalOpen = behindOpen;
-                    behindOpen = isVisible(x, y - deltaY) && isTransparent(x, y - deltaY);
+                    behindOpen = (visibility === null ? isVisible(x, y - deltaY) : visibility[(y - deltaY - minY) * width + x - minX] === 1) &&
+                        isTransparent(x, y - deltaY);
                     if (!behindOpen &&
                         !(processedCell > firstCell
                             ? diagonalOpen
-                            : isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY))) {
+                            : (visibility === null ? isVisible(x - deltaX, y - deltaY) : x - deltaX >= minX && x - deltaX <= maxX &&
+                                visibility[(y - deltaY - minY) * width + x - deltaX - minX] === 1) &&
+                                isTransparent(x - deltaX, y - deltaY))) {
                         visible = false;
                     }
                     else {
@@ -94,6 +102,9 @@ class Mrpas {
                 }
                 if (visible) {
                     setVisible(x, y);
+                    if (visibility !== null) {
+                        visibility[(y - minY) * width + x - minX] = 1;
+                    }
                     if (!transparencyChecked) {
                         cellTransparent = isTransparent(x, y);
                     }
@@ -125,6 +136,8 @@ class Mrpas {
         const isTransparent = this.isTransparent;
         const isVisible = data.isVisible;
         const setVisible = data.setVisible;
+        const visibility = data.visibility;
+        const width = maxX - minX + 1;
         let iteration = 1;
         let totalObstacles = 0;
         let obstaclesInLastLine = 0;
@@ -156,11 +169,14 @@ class Mrpas {
                 transparencyChecked = false;
                 if (obstaclesInLastLine > 0) {
                     diagonalOpen = behindOpen;
-                    behindOpen = isVisible(x - deltaX, y) && isTransparent(x - deltaX, y);
+                    behindOpen = (visibility === null ? isVisible(x - deltaX, y) : visibility[(y - minY) * width + x - deltaX - minX] === 1) &&
+                        isTransparent(x - deltaX, y);
                     if (!behindOpen &&
                         !(processedCell > firstCell
                             ? diagonalOpen
-                            : isVisible(x - deltaX, y - deltaY) && isTransparent(x - deltaX, y - deltaY))) {
+                            : (visibility === null ? isVisible(x - deltaX, y - deltaY) : y - deltaY >= minY && y - deltaY <= maxY &&
+                                visibility[(y - deltaY - minY) * width + x - deltaX - minX] === 1) &&
+                                isTransparent(x - deltaX, y - deltaY))) {
                         visible = false;
                     }
                     else {
@@ -197,6 +213,9 @@ class Mrpas {
                 }
                 if (visible) {
                     setVisible(x, y);
+                    if (visibility !== null) {
+                        visibility[(y - minY) * width + x - minX] = 1;
+                    }
                     if (!transparencyChecked) {
                         cellTransparent = isTransparent(x, y);
                     }
@@ -220,17 +239,30 @@ class Mrpas {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
     }
-    compute(originX, originY, radius, isVisible, setVisible) {
+    compute(originX, originY, radius, isVisibleOrSetVisible, setVisibleFunc) {
+        const minX = Math.max(0, originX - radius);
+        const minY = Math.max(0, originY - radius);
+        const maxX = Math.min(this.mapWidth - 1, originX + radius);
+        const maxY = Math.min(this.mapHeight - 1, originY + radius);
+        const width = maxX - minX + 1;
+        const visibility = setVisibleFunc === undefined
+            ? new Uint8Array(width * (maxY - minY + 1))
+            : null;
+        const setVisible = setVisibleFunc ?? isVisibleOrSetVisible;
+        if (visibility !== null) {
+            visibility[(originY - minY) * width + originX - minX] = 1;
+        }
         setVisible(originX, originY);
         const data = {
-            minX: Math.max(0, originX - radius),
-            minY: Math.max(0, originY - radius),
-            maxX: Math.min(this.mapWidth - 1, originX + radius),
-            maxY: Math.min(this.mapHeight - 1, originY + radius),
+            minX: minX,
+            minY: minY,
+            maxX: maxX,
+            maxY: maxY,
             originX: originX,
             originY: originY,
-            isVisible: isVisible,
+            isVisible: isVisibleOrSetVisible,
             setVisible: setVisible,
+            visibility: visibility,
             startSlopes: [],
             endSlopes: []
         };

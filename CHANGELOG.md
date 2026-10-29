@@ -1,8 +1,12 @@
 # Changelog
 
-## 2.1.2
+## 2.2.0
+### New features
+* the constructor accepts map transparency data as a flat, row-major array (`TransparencyData`) as an alternative to the transparency callback; truthy values denote transparent cells
+* `Mrpas#compute()` can be called without the visibility check callback, in which case visibility is tracked internally and the result no longer depends on any visibility set by previous computations
 ### Performance improvements
 * allocated the slope arrays once per FOV computation instead of once per octant
+* transparency data and internal visibility tracking avoid most callback calls, speeding up the computation by up to 1.6x on large or cluttered maps
 
 ## 2.1.1
 ### Performance improvements

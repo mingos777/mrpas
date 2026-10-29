@@ -1,6 +1,6 @@
 {
   "name": "mrpas",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "A Field of View (FOV) computation algorithm.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
