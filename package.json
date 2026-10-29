@@ -19,7 +19,8 @@
     "build": "npm run build:esm && npm run build:cjs",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
-    "watch": "tsc --watch -p tsconfig.esm.json"
+    "watch": "tsc --watch -p tsconfig.esm.json",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",

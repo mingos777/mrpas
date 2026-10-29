@@ -8,7 +8,7 @@ Just use npm:
 npm install mrpas
 ```
 
-Or grab the code from the [repository](https://bitbucket.org/umbraprojekt/mrpas) and include it in your project.
+Or grab the code from the [repository](https://github.com/mingos777/mrpas) and include it in your project.
 
 ## Usage
 
